@@ -12,10 +12,10 @@ Built by [84EM](https://84em.com) for use with Claude Code and other agent harne
 
 | Path | What it is | License |
 |------|------------|---------|
-| `SKILL.md` | The skill: input gathering, section selection, the two structural patterns (chronological vs. outcome-first), and the hard rules governing tone and factual precision | MIT |
+| `SKILL.md` | The skill: reading the session record, section selection, the two structural patterns (chronological vs. outcome-first), the separate validation pass, and the hard rules governing tone and factual precision | MIT |
 | `references/voice-guide.md` | Tone calibration: right-vs-wrong phrasing examples | MIT |
 | `references/section-templates.md` | Exact templates for each summary section | MIT |
-| `references/example-summaries.md` | Three worked examples for shape reference | MIT |
+| `references/example-summaries.md` | Excerpts from four example summaries for shape reference | MIT |
 
 ## Install
 
@@ -30,9 +30,13 @@ The skill is then discoverable by its `name` and `description` frontmatter. No b
 
 ## Usage
 
-Ask the agent for a build day summary, day summary, or EOD summary at the end of a working session inside a project repo. It gathers git log/status/branches, `gh` PR state, and the session's own context automatically, picks a structure that fits the day's shape, and writes a factual markdown file with no marketing voice, no hedging, no emojis, and no em dashes.
+Ask the agent for a build day summary, day summary, or EOD summary at the end of a working session inside a project repo. It reads the session record from disk (the bb thread when the session runs in bb, the Claude Code transcript, and git and `gh` for every repository touched), picks a structure that fits the session's shape, and writes a factual markdown file with no marketing voice, no emojis, and no em dashes. Claims it could not verify are marked as unverified.
 
-**Output location defaults to the current repo root.** `SKILL.md` writes the summary as `YYYY-MM-DD-HHMMSS-build-day-summary.md` at the root of the repo you run it in. Point the "Write the file" step at wherever you keep session notes instead (a local `docs/` folder, a notes repo, your own knowledge base) if you prefer.
+Every summary records the Operator's decisions and corrections, and a ledger of actions taken outside the repository (cards, messages, documents, settings, merges). A session that spans several projects produces one summary per project.
+
+**Validation pass.** Before the file is written, a separate agent with fresh context checks the draft against the session record and reports errors and omissions. When the harness can't start a subagent, the agent runs the same check itself as a second pass.
+
+**Output location defaults to the current repo root.** `SKILL.md` writes the summary as `YYYY-MM-DD-HHMMSS-build-day-summary.md` at the root of the repo you run it in. Point the "Write the file" step at wherever you keep session notes instead (a local `docs/` folder, a notes repo, your own knowledge base) if you prefer. A project or private rule can name the destination; if that rule requires confirming it, the agent asks that one question and nothing else.
 
 **Voice-calibration references.** `references/voice-guide.md`, `references/section-templates.md`, and `references/example-summaries.md` (cited throughout `SKILL.md`) calibrate the tone and structure of a summary. The worked examples are illustrative and use invented placeholder names, not any real engagement.
 

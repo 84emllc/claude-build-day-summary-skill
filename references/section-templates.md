@@ -1,11 +1,30 @@
 # Section Templates
 
-Exact templates for each section that may appear in a build day summary. Use only the sections with real content; skip the rest entirely.
+Exact templates for each section that may appear in a build day summary. Mandatory sections always appear; use only the optional sections with real content and skip the rest entirely.
 
-## Title
+## Frontmatter (mandatory)
+
+```yaml
+---
+date: YYYY-MM-DD
+span: YYYY-MM-DD to YYYY-MM-DD
+project: <project name>
+repositories:
+  - <owner/name>
+sources:
+  - bb thread <thread id>
+  - transcript <session id>
+---
+```
+
+Omit a key whose value is unknown.
+
+## Title and Covers line (mandatory)
 
 ```text
 # Build Day Summary - YYYY-MM-DD
+
+Covers: <span>, <what this summary includes>. <What it leaves out, and where that is.>
 ```
 
 Or, when the project name adds clarity (typically when it appears across many of the Operator's recent days):
@@ -147,16 +166,45 @@ Docs:
 
 If the day spans branches, prefix the section header with the branch name in backticks: `## Files touched on \`feat/whatever\``.
 
-## Open items / Carry-over (optional)
+## Operator decisions and corrections (mandatory)
 
-Numbered list. One item per concern. State the item, current status, and any pending dependency.
+Every decision the Operator made and every correction the Operator gave the agent, in order. Quote the Operator's own words, kept short. State what changed as a result. This is the section a future reader most needs and the one most often lost, because the reasoning lives in chat rather than in git.
 
 ```markdown
-## Open items for the next session
+## Operator decisions and corrections
 
-1. **<Concern>.** <One or two sentences on status, blocker, decision needed.>
-2. **<Concern>.** <Status.>
-3. **<Concern>.** <Status.>
+1. **<Decision in a phrase>.** The Operator: "<short exact quote>". <What the agent did as a result, with the artifact.>
+2. **<Correction in a phrase>.** The agent had <what it did or claimed>. The Operator: "<short exact quote>". <What was undone or redone.>
+```
+
+If there were none: `No Operator decisions or corrections this session.`
+
+## Actions outside the repo (mandatory)
+
+A ledger of everything the session did that another person can see or that lives outside git: messages and emails, cards and tickets, KB or document writes, comments, settings, permissions, rulesets, deployments, PR merges. One row per action. The "Approved by" column names who authorized it.
+
+```markdown
+## Actions outside the repo
+
+| # | System | Action | Target | Approved by |
+|---|---|---|---|---|
+| 1 | <Project board> | Moved card to Done | <card link> | The Operator, after the PR merged |
+| 2 | GitHub | Created ruleset protecting `main` | `<owner/name>` | The Operator ("<short quote>") |
+| 3 | <KB> | Wrote this summary | `<path>` | Skill default |
+```
+
+If there were none: `No actions outside the repository.`
+
+## Open items and pending questions (optional)
+
+Numbered list. One item per concern. Give each item a status: **Open**, **Waiting on <person>**, **Asked, not answered**, or **Deferred by the Operator**. Include every question put to the Operator that was not answered.
+
+```markdown
+## Open items and pending questions
+
+1. **<Concern>.** Status: Open. <One or two sentences on blocker or next step.>
+2. **<Question asked of the Operator>.** Status: Asked, not answered. <When it was asked and what depends on it.>
+3. **<Concern>.** Status: Deferred by the Operator ("<short quote>").
 ```
 
 For release-shaped sessions, use "Carry-over" instead and focus on what didn't make the tag:

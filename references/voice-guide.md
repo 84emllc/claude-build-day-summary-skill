@@ -29,6 +29,23 @@ Third person, factual, candid, dense. The reader is the Operator's future self o
 
 When the actor is the Operator, name them. When it's an automated/agent action, name that. When it's a passive technical fact ("the file was renamed"), passive is fine.
 
+For decisions, reversals, and anything done outside the repo, the actor is never optional. A future reader needs to know whether the Operator chose something or the agent did it on its own judgment.
+
+| Wrong | Right |
+|---|---|
+| The card was archived | The agent archived the card after the Operator ruled it out of scope ("not in the signed scope") |
+| The plan was approved | The client approved the plan by email; the Operator confirmed the approval in chat |
+| Rulesets were added to the repo | The agent created two rulesets at the Operator's instruction; the Operator chose the bypass settings |
+
+### Mark what you could not verify
+
+Do not hedge with "probably", "seems", or "should". Either the claim comes from a source read for this summary, or it is marked `(unverified)`.
+
+| Wrong | Right |
+|---|---|
+| The deploy probably picked up the fix | The fix is in `a1b2c3d`; whether staging has deployed it was not checked (unverified) |
+| Tests should pass now | `composer test`: 90 tests, 0 failures |
+
 ### Lead with the mechanism, not the verdict
 
 When describing a bug fix, walk the mechanism step by step before stating the fix. This is the Operator's signature pattern:

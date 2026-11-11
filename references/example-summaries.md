@@ -1,12 +1,13 @@
 # Example Summaries
 
-Three examples of the Operator's prior build day summaries. Read these for shape, density, and section flow. The voice and structure are exemplary.
+Excerpts from four example build day summaries. Read these for shape, density, and section flow. All names are invented placeholders.
 
-The three examples show different shapes of day:
+The four examples show different shapes of session:
 
 - **2026-04-29**: Pattern A, chronological narrative spine. A multi-day plan executed in one session. Heavy "what changed today, in order" with numbered subsections.
 - **2026-04-30**: Pattern A with heavy obstacle-course tables. Day was dominated by environmental and OIDC debugging. Tables shine here.
 - **2026-05-01**: Pattern B, outcome-first. Day was hardening and a v1.0.1 release. Leads with "Released" and "Production bug fixed" sections.
+- **2026-05-12 to 2026-05-13**: Pattern A, client- and scope-heavy. A two-day session that mixed a code review with a scope audit of the project board against the signed contract. Most of the value is in the decisions and outward actions, not the code.
 
 ## Excerpts to study
 
@@ -88,3 +89,29 @@ The three examples show different shapes of day:
 > | Test runner from harness | `cd tests/E2E && npx playwright test` |
 > | `composer test:e2e` | Wrapper that does the cd + npm test |
 > | PR | `https://github.com/example-org/example-sso/pull/5` |
+
+### Covers line (client- and scope-heavy session)
+
+> Covers: 2026-05-12 to 2026-05-13, the example-portal plugin and its project board. A separate tooling change made in the same session is in its own summary.
+
+### Operator decisions and corrections
+
+> 1. **Wireframes approved.** The client signed off by email and left comments on the shared PDF. The Operator: "that's the approval, we'll fold the comments in." The agent moved the approval card to Done and filed the comments under the screens build card.
+> 2. **Dashboard card removed.** The agent had created a "Build: reporting dashboard" card and cited the contract as its source. The Operator: "the contract never mentions a dashboard." The agent archived the card and quoted the client's email request on the Operator's change-request card instead.
+> 3. **Low findings dropped.** Six low findings from the second review round concerned input no real user would enter. The Operator: "drop them." They were recorded as dismissed by the Operator, not tracked on the board.
+
+### Actions outside the repo
+
+> | # | System | Action | Target | Approved by |
+> |---|---|---|---|---|
+> | 1 | Project board | Archived card | "Build: reporting dashboard" | The Operator (decision 2) |
+> | 2 | Project board | Moved card to Done | Wireframe approval | The Operator (decision 1) |
+> | 3 | GitHub | Updated PR #4 description | `example-org/example-portal` | The Operator ("update the PR body") |
+> | 4 | GitHub | Merged PR #4 | `example-org/example-portal` | The Operator merged it |
+> | 5 | Notes repo | Wrote this summary | `notes/example-portal/` | Project rule |
+
+### Open items and pending questions
+
+> 1. **Data migration.** Status: Deferred by the Operator ("not until the schema settles").
+> 2. **Whether exports need a CSV option.** Status: Asked, not answered. Asked on 2026-05-13; nothing depends on it until the export screen is built.
+> 3. **Branch protection.** Status: Open. The rules were created but have not yet been exercised by a real PR.
