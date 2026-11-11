@@ -1,6 +1,6 @@
 ---
 name: build-day-summary
-description: Generate an end-of-session build day summary for the Operator. Use whenever the Operator asks for a "build day summary", "build summary", "day summary", "wrap up the day", "summarize today's work", "EOD summary", or any equivalent end-of-session writeup. Produces a dense, narrative, factually precise markdown file capturing what shipped, what broke, what was decided, what was done outside the repo, and what carries over. Auto-gathers from the bb thread (when present), the Claude Code transcript, git, and gh, then has a separate agent check the draft against those sources. Asks the Operator nothing about content. Default invocation context is Claude Code at the end of a working session inside a project repo.
+description: Generate an end-of-session build day summary for the Operator. Use whenever the Operator asks for a "build day summary", "build summary", "day summary", "wrap up the day", "summarize today's work", "EOD summary", or any equivalent end-of-session writeup. Produces a dense, narrative, factually precise markdown file capturing what shipped, what broke, what was decided, what was done outside the repo, and what carries over. Finds every session on the project across all bb threads and Claude Code transcript folders, plus git and gh, lists any source it could not check, then has a separate agent check the draft and the coverage. Also audits a date range for days with no summary and backfills them. Asks the Operator nothing about content. Default invocation context is Claude Code at the end of a working session inside a project repo.
 ---
 
 # Build Day Summary
@@ -23,17 +23,22 @@ The tone is **candid internal**, not external-facing. If something was a slog, s
 
 ## Workflow
 
-### 1. Read the session record
+### 1. Find every session in the span, then read each one
 
-Facts come from the session record, not from memory. Context may have been compacted, so read the record from disk.
+Facts come from the session record, not from memory. Context may have been compacted, and work on one project is often spread across several sessions, working directories, and threads. Find all of it before reading any of it.
 
-1. **The bb thread, when the session runs in bb.** `BB_THREAD_ID` is set in the environment. Run `bb thread show --self` for the thread title, project, and pull request status. Run `bb thread log --self --all --format verbose` for the full record of every turn. `bb thread history <id>` lists prompts but returns only the newest 50, so use `log --all` for anything older.
-2. **The Claude Code transcript.** The JSONL file under `~/.claude/projects/<encoded-working-directory>/`. It holds every tool call and result, which bb's prompt list does not.
+**Set the span.** For an end-of-session summary, the span runs from the first activity on the project in the record to now; a session can run across several days, and the summary covers all of it. For an audit or backfill (see "Audit: find missed days"), the span is the date range the Operator named.
+
+**Find the sessions.** Search every source below, not only the current session's. Match on what identifies the project: its repository names, local paths, project-board ID, knowledge-base client name, and project name.
+
+1. **bb threads, in every bb project.** Run `bb thread list --json --include-hidden` and again with `--archived`, with no `--project` filter: work for one project is often done in a thread filed under another. Keep threads whose activity overlaps the span, then read each one with `bb thread log <id> --all --format verbose` (or `--json` when you need a timestamp on each turn) and keep those that touch the project. For the current thread, `bb thread show --self` also gives the title, project, and pull request status. `bb thread history <id>` returns only the newest 50 prompts, so don't use it here. Check bb even when the current session isn't running in bb (`BB_THREAD_ID` unset): the Operator may have worked on the project from bb at another time.
+2. **Claude Code transcripts, in every project folder.** Search all JSONL files under `~/.claude/projects/`, not only the folder for the current working directory. Match on tool calls whose inputs name the project's paths, repositories, board, or client. Don't match on plain text: instruction and memory files that load into every session can name a project, and would make every transcript match. Transcripts hold every tool call and result, which bb's timeline condenses. Claude Code deletes them after `cleanupPeriodDays` (30 days by default), so older sessions may survive only in bb.
 3. **git and gh** for each repository touched, using `git -C <repo>` and `gh --repo <owner/name>`.
+4. **Dated files the work produced** (documents, exports, notes), when no session record survives. They show that a day had work, not what was decided.
 
-When sources disagree, the transcript and git win over memory.
+**Record coverage.** List every source you checked and every source you could not check, with the reason (bb not installed, transcripts past retention, a command that failed). Both lists go in the frontmatter and in the report to the Operator. An unchecked source must be visible, never silent.
 
-Find the session's real span from the first and last timestamps in the record. A session can run across several days; the summary covers all of it, not only today.
+When sources disagree, the transcript and git win over memory. Dates and times come from timestamps in the record, converted to the Operator's time zone.
 
 From the record, collect:
 
@@ -154,10 +159,12 @@ repositories:
 sources:
   - bb thread <thread id>
   - transcript <session id>
+sources_not_checked:
+  - <source>: <reason>
 ---
 ```
 
-Omit a key whose value is unknown. Leave out `sources` entries that were not read.
+Omit a key whose value is unknown. List under `sources` only what was read, and under `sources_not_checked` every source from step 1 that was not, with the reason. Omit `sources_not_checked` only when every source was checked.
 
 **Title formats the Operator has used:**
 
@@ -208,8 +215,8 @@ Tests / infrastructure:
 
 **Separate validation pass.** Write the draft to a scratch file outside any repository. When the harness can start a subagent, dispatch one with fresh context and a read-only brief:
 
-- Inputs: the draft path, the bb thread ID (if any), the transcript path, and the list of repositories.
-- Task: check every factual claim in the draft against those sources, and check the record for anything important the draft leaves out, especially Operator decisions and corrections, actions outside the repo, unanswered questions, and reversals.
+- Inputs: the draft path, the span, the project identifiers used in step 1, the bb thread IDs and transcript paths found, and the list of repositories.
+- Task: check every factual claim in the draft against those sources, and check the record for anything important the draft leaves out, especially Operator decisions and corrections, actions outside the repo, unanswered questions, and reversals. Also check coverage: repeat a quick version of the step 1 search and report any bb thread, transcript, or repository in the span that the draft's sources miss.
 - Output: a list of errors (claim, what the source says, where) and omissions. The subagent edits nothing.
 
 Apply the corrections the sources confirm. Where the subagent and the draft disagree, settle it by reading the source, not by picking a side. When no subagent is available, run the same check yourself as a second pass against the sources, reading them fresh rather than from memory.
@@ -231,9 +238,19 @@ After writing, tell the Operator:
 - The filename created
 - A one-sentence description of what's in it
 - What the validation pass changed
+- The sources not checked, with reasons
 - Any sections you deliberately skipped (so they can flag if you misjudged)
 
 Do not narrate the gathering process or the section-selection process. The output is the file.
+
+## Audit: find missed days
+
+When the Operator asks which days have no summary, or asks for a backfill:
+
+1. List the existing summaries and the days each one covers, from its frontmatter `span` or its title.
+2. Run the step 1 search over the requested range and list every day with work on the project, with the evidence for each: thread IDs, transcript files, commits, dated files. Count the Operator's prompts and the project tool calls per day so a passing mention isn't counted as a work day.
+3. Compare the two lists. Report each missed day with its evidence, and say plainly which days have work but no surviving session record (only dated files or commits), since those can't be summarized accurately.
+4. Backfill only the days the Operator approves. Write one summary per run of consecutive work days, run the full workflow for each (including the validation pass), and name each file with the last day of its stretch and the time of its last activity, so it files under the right month. Add "Backfilled <date> from <sources>." to the Covers line.
 
 ## Hard rules
 
@@ -245,6 +262,7 @@ Do not narrate the gathering process or the section-selection process. The outpu
 - **Never write "I" or "we" as if Claude was the actor.** The actor is the Operator, the agent, a named subagent, or unnamed (passive voice is fine for technical actions: "was deleted", "was renamed"). Decisions, reversals, and outward actions always name the actor.
 - **Never ask the Operator about content.** Best-effort draft, every time. The only permitted question is the destination, when a rule requires it.
 - **Never skip the validation pass.** Use a separate agent when the harness has one; otherwise run the second pass yourself.
+- **Never skip a source silently.** Search every source in step 1, across all bb projects and all transcript folders. Anything not checked is listed with its reason.
 - **Never write filler.** If an optional section has nothing real, omit it.
 
 ## Reference files
