@@ -5,6 +5,20 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-11-11
+
+### Added
+
+- "Audit: find missed days": compares existing summaries against every work day found in a date range, reports days with no surviving session record, and backfills approved days, one summary per run of consecutive days, named so each files under the right month.
+- `sources_not_checked` frontmatter key and a matching line in the report to the Operator, so a source that was not checked is visible.
+- Hard rule: never skip a source silently.
+- The validation pass now also checks coverage by repeating a quick session search for threads, transcripts, or repositories the draft missed.
+
+### Changed
+
+- Step 1 is now "Find every session in the span, then read each one". It searches bb threads in every bb project, archived and hidden included, whether or not the current session runs in bb, and Claude Code transcripts in every project folder, matched on tool calls that name the project rather than on plain text. Dated files the work produced count as evidence of a work day when no session record survives.
+- Step 1 notes that Claude Code deletes transcripts after `cleanupPeriodDays` (30 days by default), so older sessions may survive only in bb.
+
 ## [0.2.0] - 2026-11-11
 
 ### Added
@@ -31,5 +45,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial `build-day-summary` agent skill: `SKILL.md` (input-gathering procedure, section-selection rules, the two structural patterns, and the hard rules governing tone and factual precision) and the `references/` tone-and-structure calibration files (`voice-guide.md`, `section-templates.md`, `example-summaries.md`).
 
+[0.3.0]: https://github.com/84emllc/claude-build-day-summary-skill/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/84emllc/claude-build-day-summary-skill/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/84emllc/claude-build-day-summary-skill/releases/tag/v0.1.0

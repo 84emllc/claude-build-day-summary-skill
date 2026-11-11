@@ -14,6 +14,8 @@ repositories:
 sources:
   - bb thread <thread id>
   - transcript <session id>
+sources_not_checked:
+  - <source>: <reason>
 ---
 ```
 
