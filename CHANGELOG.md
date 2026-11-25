@@ -5,6 +5,13 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-11-24
+
+### Added
+
+- Mandatory "Next session: where to pick up" section, written for a fresh agent with no memory of the session: where each repository stands, where the work sits in the project's phases and dates, the remaining work units and where each is specified, how to run the next unit with verified commands, environment and data state, and small carry-overs. Template in `references/section-templates.md`; placed in both structural patterns.
+- The validation pass reads that section as a fresh agent would and lists anything it would still need to ask or search for.
+
 ## [0.3.0] - 2026-11-11
 
 ### Added

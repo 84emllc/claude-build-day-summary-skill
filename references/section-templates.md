@@ -218,6 +218,36 @@ For release-shaped sessions, use "Carry-over" instead and focus on what didn't m
 - <Decision deferred>. <What triggers the decision.>
 ```
 
+## Next session: where to pick up (mandatory)
+
+Written for a fresh agent with no memory of the session. Every path, command, and date is one the session read or ran; anything else is marked `(unverified)`. Open items say what is unresolved; this section says how to start.
+
+```markdown
+## Next session: where to pick up
+
+**Where things stand (<date> <time>).** <Repository>: `main` at <sha>; <open branches and PRs, or "none">. <Anything pushed but not merged.> The next piece of work is <unit>.
+
+**Where this sits in the project** (<source document and date>):
+- <Phase or milestone>: <date>; <status, and what changed today>.
+- <Next milestone>: <date>.
+
+**The remaining work units:**
+- <Unit 1>: specified in `<doc path>`, section "<heading>"; <requirement added this session, if any>.
+- <Unit 2>: <same shape>.
+
+**How to run the next unit:**
+1. Read `<rule or spec file>` and `<rule or spec file>`.
+2. <Step the session followed, in order.>
+3. Commands, from `<directory>`: `<test command>` (<last result>), `<lint or analysis command>`.
+4. <Review, merge, and tracking steps, with who does each.>
+
+**Environment and data state:** <changed local data, snapshots and how to restore them, services left running>.
+
+**Small carry-overs:** <stale docs, unanswered offers, follow-ups that belong to no unit>.
+```
+
+When nothing carries over: `Nothing to pick up; the next work is tracked in <place>.`
+
 ## Notable engineering decisions (optional)
 
 Use when 2+ non-obvious decisions were made that a future maintainer would benefit from knowing. Each is a bolded lead-in followed by an explanation.
