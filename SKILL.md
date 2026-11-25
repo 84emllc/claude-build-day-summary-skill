@@ -91,6 +91,18 @@ Mandatory (always include):
 - Operator decisions and corrections
 - Actions outside the repo
 - Files touched / Files committed
+- Next session: where to pick up (see below)
+
+**Next session: where to pick up.** Write this section for a fresh agent that has no memory of the session and only this file. It must be enough to start the next piece of work without asking the Operator what happened. Include:
+
+- **Where things stand:** each repository's branch and head commit, open branches and pull requests, and anything pushed but not merged.
+- **Where the work sits in the project:** the phases, milestones, and dates from the project's own documents (plan, schedule, project board), with their source, and what changed today.
+- **The remaining work units:** each with the document, section, or design that specifies it, and any requirement added this session.
+- **How to run the next unit:** the rule and spec files to read first, the order of steps the session followed, and the exact commands, each one run or read this session (otherwise marked `(unverified)`).
+- **Environment and data state** a fresh agent would otherwise trip on: changed local data, snapshots, test fixtures, services left running.
+- **Small carry-overs:** stale docs, unanswered offers, follow-ups that belong to no unit.
+
+When the session ends with nothing to pick up, say so in one line and name where the next work is tracked.
 
 When a mandatory section genuinely has nothing in it, write one line saying so ("No actions outside the repository."). For these sections, an explicit "none" is information: it tells the reader nothing was missed.
 
@@ -123,6 +135,7 @@ Two structural patterns appear in the Operator's prior summaries, both valid:
 - Actions outside the repo
 - Final state / verification
 - Open items and pending questions
+- Next session: where to pick up
 - Notable decisions
 - Workflow notes
 - File index
@@ -140,6 +153,7 @@ Two structural patterns appear in the Operator's prior summaries, both valid:
 - Verification
 - Files touched
 - Carry-over
+- Next session: where to pick up
 
 Pick whichever fits the actual shape of the session. Pattern A when the work built up something new across the session. Pattern B when the work was a tighter set of fixes/hardening shipped against existing code.
 
@@ -216,7 +230,7 @@ Tests / infrastructure:
 **Separate validation pass.** Write the draft to a scratch file outside any repository. When the harness can start a subagent, dispatch one with fresh context and a read-only brief:
 
 - Inputs: the draft path, the span, the project identifiers used in step 1, the bb thread IDs and transcript paths found, and the list of repositories.
-- Task: check every factual claim in the draft against those sources, and check the record for anything important the draft leaves out, especially Operator decisions and corrections, actions outside the repo, unanswered questions, and reversals. Also check coverage: repeat a quick version of the step 1 search and report any bb thread, transcript, or repository in the span that the draft's sources miss.
+- Task: check every factual claim in the draft against those sources, and check the record for anything important the draft leaves out, especially Operator decisions and corrections, actions outside the repo, unanswered questions, and reversals. Also check coverage: repeat a quick version of the step 1 search and report any bb thread, transcript, or repository in the span that the draft's sources miss. Then read the "Next session" section as a fresh agent would: list anything it would still have to ask the Operator or search for before starting the next unit (a missing path, command, spec location, date, or state).
 - Output: a list of errors (claim, what the source says, where) and omissions. The subagent edits nothing.
 
 Apply the corrections the sources confirm. Where the subagent and the draft disagree, settle it by reading the source, not by picking a side. When no subagent is available, run the same check yourself as a second pass against the sources, reading them fresh rather than from memory.
